@@ -5,11 +5,9 @@ import axios from "axios";
 
 
 export default {
-    socket_on_open ({ commit }) {
+    socket_on_open ({ commit, dispatch }) {
         commit('setConnected');
-        Vue.prototype.$socket.sendObj('server.files.get_directory', { path: '/gcodes' }, 'getDirectoryRoot');
-        Vue.prototype.$socket.sendObj('printer.info', {}, 'getKlipperInfo');
-        Vue.prototype.$socket.sendObj('machine.gpio_power.devices', {}, 'getPowerDevices');
+        dispatch('initPrinter');
     },
 
     socket_on_close ({ commit }, event) {
@@ -34,7 +32,6 @@ export default {
 
             case 'notify_klippy_disconnected':
                 commit('setKlippyDisconnected');
-                commit('resetPrinter');
                 break;
 
             case 'notify_filelist_changed':
@@ -71,15 +68,25 @@ export default {
 
             default:
                 if (data.result !== "ok") {
-                    if (data.error && data.error.message !== "Klippy Request Timed Out") window.console.error("JSON-RPC: " + data.error.message);
+                    if (
+                        data.error &&
+                        data.error.message !== "Klippy Request Timed Out" &&
+                        data.error.message !== "Klippy Disconnected"
+                    ) window.console.error("JSON-RPC: " + data.error.message);
                     else if (!data.error) window.console.log(data);
                 }
         }
     },
 
+    initPrinter() {
+        Vue.prototype.$socket.sendObj('server.files.get_directory', { path: '/config' }, 'getDirectoryRoot');
+        Vue.prototype.$socket.sendObj('printer.info', {}, 'getKlipperInfo');
+        Vue.prototype.$socket.sendObj('machine.gpio_power.devices', {}, 'getPowerDevices');
+    },
+
     getDirectoryRoot({ commit }, data) {
-        if (data.files && data.files.filter((file) => file.filename === "gui.json")) {
-            fetch('//'+store.state.socket.hostname+':'+store.state.socket.port+'/server/files/gcodes/gui.json?time='+Date.now())
+        if (data.files && data.files.filter((file) => file.filename === "gui.json").length) {
+            fetch('//'+store.state.socket.hostname+':'+store.state.socket.port+'/server/files/config/gui.json?time='+Date.now())
                 .then(res => res.json()).then(file => {
                 commit('setSettings', file);
             });
@@ -92,6 +99,7 @@ export default {
 
         let formData = new FormData();
         formData.append('file', file);
+        formData.append('root', 'config');
 
         axios.post('//' + state.socket.hostname + ':' + state.socket.port + '/server/files/upload',
             formData, {
@@ -146,10 +154,6 @@ export default {
 
     getHeatersHistory({ commit }, data) {
         commit('setHeaterHistory', data);
-    },
-
-    getPrinterConfig({commit}, data) {
-        commit('setPrinterConfig', data);
     },
 
     getDirectory({ commit }, data) {
@@ -207,7 +211,7 @@ export default {
 
     getPowerDevices({ commit }, data) {
         if (data.error) {
-            if (data.error.code != -32601) {
+            if (data.error.code !== -32601) {
                 Vue.$toast.error(data.error.message);
             }
         } else {
@@ -219,7 +223,7 @@ export default {
 
     getPowerDevicesStatus({ commit }, data) {
         if (data.error) {
-            if (data.error.code != -32601) {
+            if (data.error.code !== -32601) {
                 Vue.$toast.error(data.error.message);
             }
         } else {
@@ -230,10 +234,6 @@ export default {
     setHeaterChartVisibility({ commit, dispatch }, data) {
         commit('setHeaterChartVisibility', data);
         dispatch('saveGuiSettings');
-    },
-
-    setLoadingEmergencyStop({commit}) {
-        commit('setLoadingEmergencyStop', false);
     },
 
     respondPrintPause({commit}) {
