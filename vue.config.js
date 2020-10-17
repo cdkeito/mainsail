@@ -1,16 +1,26 @@
+const webpack = require('webpack')
+const fs = require('fs')
+const packageJson = fs.readFileSync('./package.json')
+const version = JSON.parse(packageJson).version || 0
+
 module.exports = {
   "transpileDependencies": [
     "vuetify"
   ],
+  configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        'process.env': {
+          PACKAGE_VERSION: '"' + version + '"'
+        }
+      })
+    ]
+  },
   pwa: {
     serviceWorker:false,
-    workboxPluginMode:"InjectManifest",
-    workboxOptions: {
-      //swSrc: './src/registerServiceWorker.js',
-    },
     iconPaths: {
-      favicon32: 'img/icons/favicon-32x32.png',
       favicon16: 'img/icons/favicon-16x16.png',
+      favicon32: 'img/icons/favicon-32x32.png',
       appleTouchIcon: 'img/icons/apple-touch-icon-180x180.png',
       maskIcon: 'img/icons/safari-pinned-tab.svg',
       msTileImage: 'img/icons/mstile-150x150.png'

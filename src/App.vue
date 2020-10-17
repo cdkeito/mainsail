@@ -51,7 +51,7 @@
         <v-app-bar app elevate-on-scroll>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="mr-5" v-if="isConnected && config_changed" :loading="loadingConfigChanged" @click="clickSaveConfig">SAVE CONFIG</v-btn>
+            <v-btn color="primary" class="mr-5" v-if="isConnected && save_config_pending" :loading="loadingConfigChanged" @click="clickSaveConfig">SAVE CONFIG</v-btn>
             <v-btn color="error" v-if="isConnected" :loading="loadingEmergencyStop" @click="clickEmergencyStop">Emergency Stop</v-btn>
         </v-app-bar>
 
@@ -75,7 +75,7 @@
         </v-dialog>
 
         <v-footer app class="d-block">
-            <span>v0.2.3</span>
+            <span>v{{ getVersion }}</span>
             <span v-if="version" class="d-none d-sm-inline"> - {{ version }}</span>
             <span class="float-right">Made with <img src="/img/heart.png" height="15" title="love" alt="heard" /> by <a href="http://www.vorondesign.com/" target="_blank"><img src="/img/voron.png" height="15" title="VoronDesign" alt="Logo - VoronDesign" /></a></span>
         </v-footer>
@@ -124,10 +124,11 @@ export default {
             klippy_state: state => state.printer.webhooks.state,
             loadings: state => state.loadings,
             config: state => state.printer.configfile.config,
-            config_changed: state => state.printer.configfile.config_changed,
+            save_config_pending: state => state.printer.configfile.save_config_pending,
         }),
         ...mapGetters([
-            'getTitle'
+            'getTitle',
+            'getVersion'
         ])
     },
     methods: {
@@ -141,7 +142,8 @@ export default {
             this.$socket.sendObj('printer.gcode.script', { script: "SAVE_CONFIG" });
         },
         drawFavicon(val) {
-            let favicon = document.getElementById('favicon');
+            let favicon16 = document.querySelector("link[rel*='icon'][sizes='16x16']");
+            let favicon32 = document.querySelector("link[rel*='icon'][sizes='32x32']");
             if (val > 0 && val < 100) {
                 let faviconSize = 64;
 
@@ -180,8 +182,12 @@ export default {
                 context.fillStyle = "#e41313";
                 context.fill();
 
-                favicon.href = canvas.toDataURL('image/png');
-            } else favicon.href = "./img/icon/favicon-32x32.png"
+                favicon16.href = canvas.toDataURL('image/png');
+                favicon32.href = canvas.toDataURL('image/png');
+            } else {
+                favicon16.href = "/img/icon/favicon-16x16.png"
+                favicon32.href = "/img/icon/favicon-32x32.png"
+            }
         }
     },
     watch: {
