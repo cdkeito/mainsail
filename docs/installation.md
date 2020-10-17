@@ -95,6 +95,7 @@ enabled: true
 trusted_clients:
     192.168.1.0/24
 ```
+Note that the above configuration can differ! Make sure you determine your local IP and replace the IP from the example configuration above with the one from your own network.
 
 Restart Moonraker (`sudo service moonraker restart`) and open the url `http://<printer-ip>:7125/printer/info` in your browser.
 
@@ -119,18 +120,19 @@ To install nginx you only need to execute:
 sudo apt install nginx
 ```
 
-now we create the config file with:
+now we create the config files with:
 
 ```
-sudo nano /etc/nginx/sites-available/mainsail
+sudo touch /etc/nginx/sites-available/mainsail
+sudo touch /etc/nginx/conf.d/upstreams.conf
+sudo touch /etc/nginx/conf.d/common_vars.conf
 ```
 
-and fill it with the following content:
+Each file can be filled with the following content:
+
+`sudo nano /etc/nginx/conf.d/upstreams.conf`
 ```
-map $http_upgrade $connection_upgrade {
-    default upgrade;
-    '' close;
-}
+# /etc/nginx/conf.d/upstreams.conf
 
 upstream apiserver {
     #edit your api port here
@@ -143,6 +145,23 @@ upstream mjpgstreamer {
     ip_hash;
     server 127.0.0.1:8081;
 }
+```
+
+`sudo nano /etc/nginx/conf.d/common_vars.conf`
+
+```
+# /etc/nginx/conf.d/common_vars.conf
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+```
+
+`sudo nano /etc/nginx/sites-available/mainsail`
+
+```
+# /etc/nginx/sites-available/mainsail
 
 server {
     listen 80 default_server;
@@ -150,6 +169,16 @@ server {
 
     access_log /var/log/nginx/mainsail-access.log;
     error_log /var/log/nginx/mainsail-error.log;
+
+    #disable this section on smaller hardware like a pi zero
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_comp_level 4;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/json application/xml;
 
     #web_path from mainsail static files
     root /home/pi/mainsail;
@@ -241,7 +270,7 @@ Now we can install Mainsail (static httpdocs).
 Now you can download the current mainsail static data
 ```
 cd ~/mainsail
-wget -q -O mainsail.zip https://github.com/meteyou/mainsail/releases/download/v0.2.2/mainsail-beta-0.2.2.zip && unzip mainsail.zip && rm mainsail.zip
+wget -q -O mainsail.zip https://github.com/meteyou/mainsail/releases/download/v0.2.4/mainsail-beta-0.2.4.zip && unzip mainsail.zip && rm mainsail.zip
 ```
 Now it should be possible to open the interface: `http://<printer-ip>/`.
 
@@ -254,7 +283,7 @@ you should use these macros, or use them as templates for your own.
 ### Change the Hostname (optional)
 to use the hostname instate of the ip, you can install the avahi-daemon:
 ```
-sudo apt install avahi-daemon 
+sudo apt install avahi-daemon
 ```
 
 and you can config your hostname:
