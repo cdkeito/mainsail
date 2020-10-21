@@ -7,11 +7,28 @@
 
     .tool-input .v-input__slot { margin-bottom: 0; }
     .tool-input .v-text-field__details { display: none; }
+
+    .tool-input input {
+        -moz-appearance: textfield;
+    }
+    .tool-input input::-webkit-outer-spin-button,
+    .tool-input input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .tool-input-reset {
+        margin-left: 7px;
+        margin-right: 7px;
+    }
 </style>
 
 <template>
-    <v-text-field type="number" min="0" :max="max_temp" step="any" ref="toolField" v-model="value" class="tool-input" @change="setTemps" onClick="this.select();">
-    </v-text-field>
+    <v-row>
+        <v-text-field type="number" min="0" :max="max_temp" step="any" ref="toolField" v-model="value" class="tool-input" @change="setTemps" onClick="this.select();">
+        </v-text-field>
+        <v-btn class="navy tool-input-reset" @click="btnResetTemps">off</v-btn>
+    </v-row>
 </template>
 
 
@@ -44,6 +61,12 @@
                     this.value = this.target;
                     Vue.$toast.error("Temperature too low for "+this.name+"! (min: "+this.min_temp+")");
                 } else this.$socket.sendObj('printer.gcode.script', {script: this.command+' '+this.attributeName+'='+this.name+' TARGET='+this.value});
+            },
+            btnResetTemps() {
+                if (this.min_temp !== undefined) {
+                    this.value = Math.min(0, this.min_temp);
+                    this.$socket.sendObj('printer.gcode.script', {script: this.command+' '+this.attributeName+'='+this.name+' TARGET='+this.value});
+                }
             }
         },
         watch: {

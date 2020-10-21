@@ -168,6 +168,10 @@
                 <v-list-item @click="deleteDirectoryAction" v-if="contextMenu.item.isDirectory">
                     <v-icon class="mr-1">mdi-delete</v-icon> Delete
                 </v-list-item>
+
+                <v-list-item @click="arcweldFile(contextMenu.item)" v-if="!contextMenu.item.isDirectory">
+                    <v-icon class="mr-1">mdi-flash</v-icon> ArcWeld
+                </v-list-item>
             </v-list>
         </v-menu>
         <v-dialog v-model="dialogPrintFile.show" max-width="400">
@@ -226,6 +230,20 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="dialogArcweldFile.show" max-width="400">
+            <v-card>
+                <v-card-title class="headline">ArcWeld File</v-card-title>
+                <v-card-text>
+                    <v-text-field label="Name" required v-model="dialogArcweldFile.newName"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="" text @click="dialogArcweldFile.show = false">Cancel</v-btn>
+                    <v-btn color="primary" text @click="arcweldFileAction">arcweld</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 <script>
@@ -259,6 +277,13 @@
                     newName: "",
                     item: {}
                 },
+
+                dialogArcweldFile: {
+                    show: false,
+                    newName: "",
+                    item: {}
+                },
+
                 headers: [
                     { text: '', value: '', },
                     { text: 'Name', value: 'filename', },
@@ -421,6 +446,21 @@
                     dest: this.currentPath+"/"+this.dialogRenameFile.newName
                 }, 'getPostFileMove');
             },
+
+
+            arcweldFile(item) {
+                this.dialogArcweldFile.item = item;
+                this.dialogArcweldFile.newName = item.filename.replace('.gcode', '.aw.gcode');
+                this.dialogArcweldFile.show = true;
+            },
+            arcweldFileAction() {
+                this.dialogArcweldFile.show = false;
+                this.$socket.sendObj('arcwelder.file.arcwelder', {
+                    source: this.currentPath+"/"+this.dialogArcweldFile.item.filename,
+                    dest: this.currentPath+"/"+this.dialogArcweldFile.newName
+                }, 'getPostFileMove');
+            },
+
             renameDirectory(item) {
                 this.dialogRenameDirectory.item = item;
                 this.dialogRenameDirectory.newName = item.filename;
