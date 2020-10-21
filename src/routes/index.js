@@ -6,6 +6,7 @@ import Files from '../pages/Files.vue'
 import Settings from '../pages/Settings.vue'
 import SettingsInterface from '../pages/settings/interface.vue'
 import SettingsMachine from '../pages/settings/machine.vue'
+import SettingsLoadgraphs from '../pages/settings/loadgraphs.vue'
 
 const routes = [
     {
@@ -50,6 +51,13 @@ const routes = [
         alwaysShow: false,
     },
     {
+        title: "Farm",
+        path: '/farm',
+        icon: 'factory',
+        //component: Files,
+        alwaysShow: true,
+    },
+    {
         title: "Settings",
         path: '/settings',
         redirect: '/settings/machine',
@@ -67,6 +75,12 @@ const routes = [
                 title: 'Interface',
                 path: '/settings/interface',
                 component: SettingsInterface,
+                alwaysShow: true,
+            },
+            {
+                title: 'Load Graphs',
+                path: '/settings/loadgraphs',
+                component: SettingsLoadgraphs,
                 alwaysShow: true,
             },
         ]
