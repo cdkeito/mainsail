@@ -249,6 +249,7 @@
 <script>
     import { mapState, mapGetters } from 'vuex';
     import axios from 'axios';
+    import qs from 'qs';
     import { findDirectory } from "../plugins/helpers";
     /*import Vue from "vue";*/
 
@@ -447,7 +448,6 @@
                 }, 'getPostFileMove');
             },
 
-
             arcweldFile(item) {
                 this.dialogArcweldFile.item = item;
                 this.dialogArcweldFile.newName = item.filename.replace('.gcode', '.aw.gcode');
@@ -455,10 +455,21 @@
             },
             arcweldFileAction() {
                 this.dialogArcweldFile.show = false;
-                this.$socket.sendObj('arcwelder.file.arcwelder', {
-                    source: this.currentPath+"/"+this.dialogArcweldFile.item.filename,
-                    dest: this.currentPath+"/"+this.dialogArcweldFile.newName
-                }, 'getPostFileMove');
+
+                let filename = this.currentPath + "/" + this.dialogArcweldFile.item.filename;
+                var params = {
+                    source: this.currentPath + "/" + this.dialogArcweldFile.item.filename,
+                    dest: this.currentPath + "/" + this.dialogArcweldFile.newName
+                }
+                axios
+                    .post('//' + this.hostname + ':' + this.port + '/arcwelder/file/arcwelder?' + qs.stringify(params))
+                    .then(() => {
+                        this.refreshFileList()
+                        this.$toast.success(filename + " successfully arcwelded.");
+                    })
+                    .catch(() => {
+                        this.$toast.error("Error!");
+                    });
             },
 
             renameDirectory(item) {
