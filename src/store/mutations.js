@@ -369,9 +369,10 @@ export default {
     },
 
     setMetadata(state, data) {
+
         if (data !== undefined && data.filename !== "") {
             if (data.filename === state.printer.print_stats.filename) {
-                this.commit('setMetadataCurrentFile', { data: data });
+                this.commit('setMetadataCurrentFile', data );
             }
 
             let filename = "gcodes/"+data.filename;
@@ -468,10 +469,6 @@ export default {
             date: new Date(),
             message: message
         });
-
-        if (message !== undefined && message.substring(0,2) === "!!") {
-            Vue.$toast.error(message);
-        }
     },
 
     setEndstopStatus(state, data) {
@@ -509,6 +506,15 @@ export default {
                 Vue.set(state.power.devices[devIdx], 'status', data[key] === 'off' ? 0 : 1);
             }
         }
+    },
+
+    setGuiGcodefilesMetadata(state, data) {
+        Vue.set(state.gui.gcodefiles.showMetadata, data.name, data.value);
+    },
+
+
+    setGuiGcodefilesShowHiddenFiles(state, value) {
+        Vue.set(state.gui.gcodefiles, "showHiddenFiles", value);
     },
 
     setLoadingRestart(state, value) {

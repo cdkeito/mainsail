@@ -17,7 +17,7 @@
         >
             <div id="nav-header">
                 <img :src="require('./assets/logo.svg')" />
-                <v-toolbar-title>{{ printername != "" ? printername : hostname }}</v-toolbar-title>
+                <v-toolbar-title>{{ printername !== "" ? printername : hostname }}</v-toolbar-title>
             </div>
             <ul class="navi" :expand="$vuetify.breakpoint.mdAndUp">
                 <li v-for="(category, index) in routes" :key="index" :prepend-icon="category.icon"
@@ -234,8 +234,8 @@ export default {
                 favicon16.href = canvas.toDataURL('image/png');
                 favicon32.href = canvas.toDataURL('image/png');
             } else {
-                favicon16.href = "/img/icon/favicon-16x16.png"
-                favicon32.href = "/img/icon/favicon-32x32.png"
+                favicon16.href = "/img/icons/favicon-16x16.png"
+                favicon32.href = "/img/icons/favicon-32x32.png"
             }
         }
     },
