@@ -25,8 +25,8 @@
 
 <template>
     <v-row>
-        <v-text-field type="number" min="0" :max="max_temp" step="any" ref="toolField" v-model="value" class="tool-input" @change="setTemps" onClick="this.select();">
-        </v-text-field>
+    <v-text-field type="number" min="0" :max="max_temp" step="any" ref="toolField" v-model="value" class="tool-input" @change="setTemps" onClick="this.select();">
+    </v-text-field>
         <v-btn class="navy tool-input-reset" @click="btnResetTemps">off</v-btn>
     </v-row>
 </template>

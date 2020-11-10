@@ -1,5 +1,12 @@
 <style>
-
+    .tool-input input {
+        -moz-appearance: textfield;
+    }
+    .tool-input input::-webkit-outer-spin-button,
+    .tool-input input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
 </style>
 
 <template>
@@ -17,7 +24,7 @@
                 <template v-slot:append>
                     <v-text-field
                         v-model="value"
-                        class="mt-0 pt-0"
+                        class="mt-0 pt-0 tool-input"
                         hide-details
                         single-line
                         type="number"
