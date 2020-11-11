@@ -45,6 +45,10 @@
     .minHeight36 {
         min-height: 36px;
     }
+
+    .preview div.v-image__image.v-image__image--cover {
+        background-size: auto;
+    }
 </style>
 
 <template>
@@ -175,10 +179,10 @@
         </v-menu>
         <v-dialog v-model="dialogPrintFile.show" max-width="400">
             <v-card>
-                <v-img
-                    v-if="dialogPrintFile.item.thumbnails && dialogPrintFile.item.thumbnails.find(element => element.width === 400)"
-                    :src="'data:image/gif;base64,'+(dialogPrintFile.item.thumbnails ? dialogPrintFile.item.thumbnails.find(element => element.width === 400).data : '')"
-                    :height="(dialogPrintFile.item.thumbnails ? dialogPrintFile.item.thumbnails.find(element => element.width === 400).height : '')+'px'"
+                <v-img class="preview"
+                    v-if="dialogPrintFile.item.thumbnails && dialogPrintFile.item.thumbnails.find(element => element.height === 300)"
+                    :src="'data:image/gif;base64,'+(dialogPrintFile.item.thumbnails ? dialogPrintFile.item.thumbnails.find(element => element.height === 300).data : '')"
+                    :height="(dialogPrintFile.item.thumbnails ? dialogPrintFile.item.thumbnails.find(element => element.height === 300).height : '')+'px'"
                 ></v-img>
                 <v-card-title class="headline">Start Job</v-card-title>
                 <v-card-text>Do you want to start {{ dialogPrintFile.item.filename }}?</v-card-text>
